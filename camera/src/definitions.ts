@@ -31,6 +31,13 @@ export interface CameraPlugin {
   pickImages(options: GalleryImageOptions): Promise<GalleryPhotos>;
 
   /**
+   * Allows the user to pick a picture or video from the photo gallery.
+   *
+   * @since 4.2.0
+   */
+  pickMedia(): Promise<GalleryMedia>;
+
+  /**
    * iOS 14+ Only: Allows the user to update their limited photo library selection.
    * On iOS 15+ returns all the limited photos after the picker dismissal.
    * On iOS 14 or if the user gave full access to the photos it returns an empty array.
@@ -243,6 +250,28 @@ export interface GalleryPhotos {
    * @since 1.2.0
    */
   photos: GalleryPhoto[];
+}
+
+export interface GalleryMedia {
+  /**
+   * Full, platform-specific file URL that can be read later using the Filesystem API.
+   *
+   * @since 4.2.0
+   */
+  path: string;
+  /**
+   * webPath returns a path that can be used to set the src attribute of an image for efficient
+   * loading and rendering.
+   *
+   * @since 4.2.0
+   */
+  webPath: string;
+  /**
+   * The format of the image, ex: jpeg, png, gif, mov.
+   *
+   * @since 4.2.0
+   */
+  format: string;
 }
 
 export interface GalleryPhoto {

@@ -8,6 +8,7 @@ import type {
   ImageOptions,
   PermissionStatus,
   Photo,
+  GalleryMedia,
 } from './definitions';
 
 export class CameraWeb extends WebPlugin implements CameraPlugin {
@@ -47,6 +48,10 @@ export class CameraWeb extends WebPlugin implements CameraPlugin {
     return new Promise<GalleryPhotos>(async resolve => {
       this.multipleFileInputExperience(resolve);
     });
+  }
+
+  async pickMedia(): Promise<GalleryMedia> {
+    throw new Error('Method not implemented.');
   }
 
   private async cameraExperience(

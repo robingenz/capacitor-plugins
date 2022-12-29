@@ -74,6 +74,7 @@ const takePicture = async () => {
 
 * [`getPhoto(...)`](#getphoto)
 * [`pickImages(...)`](#pickimages)
+* [`pickMedia()`](#pickmedia)
 * [`pickLimitedLibraryPhotos()`](#picklimitedlibraryphotos)
 * [`getLimitedLibraryPhotos()`](#getlimitedlibraryphotos)
 * [`checkPermissions()`](#checkpermissions)
@@ -123,6 +124,21 @@ On iOS 13 and older it only allows to pick one picture.
 **Returns:** <code>Promise&lt;<a href="#galleryphotos">GalleryPhotos</a>&gt;</code>
 
 **Since:** 1.2.0
+
+--------------------
+
+
+### pickMedia()
+
+```typescript
+pickMedia() => Promise<GalleryMedia>
+```
+
+Allows the user to pick a picture or video from the photo gallery.
+
+**Returns:** <code>Promise&lt;<a href="#gallerymedia">GalleryMedia</a>&gt;</code>
+
+**Since:** 4.2.0
 
 --------------------
 
@@ -257,6 +273,15 @@ Request camera and photo album permissions
 | **`correctOrientation`** | <code>boolean</code>                   | Whether to automatically rotate the image "up" to correct for orientation in portrait mode | <code>: true</code>         | 1.2.0 |
 | **`presentationStyle`**  | <code>'fullscreen' \| 'popover'</code> | iOS only: The presentation style of the Camera.                                            | <code>: 'fullscreen'</code> | 1.2.0 |
 | **`limit`**              | <code>number</code>                    | iOS only: Maximum number of pictures the user will be able to choose.                      | <code>0 (unlimited)</code>  | 1.2.0 |
+
+
+#### GalleryMedia
+
+| Prop          | Type                | Description                                                                                                       | Since |
+| ------------- | ------------------- | ----------------------------------------------------------------------------------------------------------------- | ----- |
+| **`path`**    | <code>string</code> | Full, platform-specific file URL that can be read later using the Filesystem API.                                 | 4.2.0 |
+| **`webPath`** | <code>string</code> | webPath returns a path that can be used to set the src attribute of an image for efficient loading and rendering. | 4.2.0 |
+| **`format`**  | <code>string</code> | The format of the image, ex: jpeg, png, gif, mov.                                                                 | 4.2.0 |
 
 
 #### PermissionStatus

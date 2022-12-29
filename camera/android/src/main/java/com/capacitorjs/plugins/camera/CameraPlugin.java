@@ -17,6 +17,7 @@ import android.os.Environment;
 import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.util.Base64;
+import android.webkit.MimeTypeMap;
 import androidx.activity.result.ActivityResult;
 import androidx.core.content.FileProvider;
 import com.getcapacitor.FileUtils;
@@ -91,11 +92,13 @@ public class CameraPlugin extends Plugin {
     private boolean isEdited = false;
     private boolean isFirstRequest = true;
     private boolean isSaved = false;
+    private boolean media = false;
 
     private CameraSettings settings = new CameraSettings();
 
     @PluginMethod
     public void getPhoto(PluginCall call) {
+        media = false;
         isEdited = false;
         settings = getSettings(call);
         doShow(call);
@@ -103,8 +106,16 @@ public class CameraPlugin extends Plugin {
 
     @PluginMethod
     public void pickImages(PluginCall call) {
+        media = false;
         settings = getSettings(call);
         openPhotos(call, true, false);
+    }
+
+    @PluginMethod
+    public void pickMedia(PluginCall call) {
+        media = true;
+        settings = getSettings(call);
+        openPhotos(call, false, false);
     }
 
     @PluginMethod
@@ -287,14 +298,23 @@ public class CameraPlugin extends Plugin {
         if (skipPermission || checkPhotosPermissions(call)) {
             Intent intent = new Intent(Intent.ACTION_PICK);
             intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, multiple);
-            intent.setType("image/*");
+            if (media) {
+                intent.setType("*/*");
+            } else {
+                intent.setType("image/*");
+            }
             try {
-                if (multiple) {
-                    intent.putExtra("multi-pick", multiple);
-                    intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[] { "image/*" });
-                    startActivityForResult(call, intent, "processPickedImages");
-                } else {
+                if (media) {
+                    intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[] { "image/*", "video/*" });
                     startActivityForResult(call, intent, "processPickedImage");
+                } else {
+                    if (multiple) {
+                        intent.putExtra("multi-pick", multiple);
+                        intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[] { "image/*" });
+                        startActivityForResult(call, intent, "processPickedImages");
+                    } else {
+                        startActivityForResult(call, intent, "processPickedImage");
+                    }
                 }
             } catch (ActivityNotFoundException ex) {
                 call.reject(NO_PHOTO_ACTIVITY_ERROR);
@@ -336,7 +356,11 @@ public class CameraPlugin extends Plugin {
 
         imagePickedContentUri = u;
 
-        processPickedImage(u, call);
+        if (media) {
+            processPickedMedia(u, call);
+        } else {
+            processPickedImage(u, call);
+        }
     }
 
     @ActivityCallback
@@ -400,6 +424,17 @@ public class CameraPlugin extends Plugin {
         } else {
             call.reject("No images picked");
         }
+    }
+
+    private void processPickedMedia(Uri uri, PluginCall call) {
+        JSObject result = new JSObject();
+        ContentResolver contentResolver = bridge.getContext().getContentResolver();
+        MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
+        String format = mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uri));
+        result.put("path", uri.toString());
+        result.put("format", format);
+        result.put("webPath", FileUtils.getPortablePath(getContext(), bridge.getLocalUrl(), uri));
+        call.resolve(result);
     }
 
     private void processPickedImage(Uri imageUri, PluginCall call) {
